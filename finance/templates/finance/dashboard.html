@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - FinSight AI{% endblock %}
+{% block content %}
+
+<div class="container my-5 text-white">
+  <h1 class="mb-4 text-center text-indigo-400 font-bold text-3xl">
+    Financial Dashboard for {{ username|default:'Guest' }}
+  </h1>
+
+  <!-- Latest Analysis -->
+  <div class="card p-4 mb-4 shadow-lg bg-white/10 backdrop-blur-md border border-white/20">
+    <h4 class="mb-3 text-indigo-300 font-semibold">Latest Analysis</h4>
+    <div class="p-3 bg-slate-800/50 rounded-lg">
+      {% if latest_summary %}
+        {{ latest_summary|linebreaks }}
+      {% else %}
+        <p class="text-gray-400 italic">
+          No analysis available yet. Please upload a financial file to get started!
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Spending Breakdown -->
+  <div class="card p-4 shadow-lg bg-white/10 backdrop-blur-md border border-white/20">
+    <h4 class="mb-3 text-indigo-300 font-semibold">Spending Breakdown</h4>
+
+    <div class="chart-container relative h-[300px]">
+      <canvas id="spendingChart"></canvas>
+    </div>
+
+    {% if chart %}
+      <!-- Optional: Python-generated base64 chart -->
+      <div class="mt-4 text-center">
+        <img src="data:image/png;base64,{{ chart }}" 
+             class="img-fluid rounded-lg shadow-lg border border-white/10" 
+             alt="Spending Chart">
+      </div>
+    {% else %}
+      <div class="alert alert-warning mt-4 bg-yellow-500/10 border border-yellow-400/40 text-yellow-300 rounded-lg p-3">
+        No chart available. Upload a CSV with <b>Category</b> and <b>Amount</b> columns.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const canvas = document.getElementById('spendingChart');
+  if (!canvas) {
+    console.error('Canvas element not found');
+    return;
+  }
+
+  const ctx = canvas.getContext('2d');
+
+  // Safely parse Django context
+  let labels = [];
+  let data = [];
+  try {
+    labels = JSON.parse('{{ pie_data.labels|escapejs|default:"[]" }}');
+    data = JSON.parse('{{ pie_data.data|escapejs|default:"[]" }}');
+  } catch (e) {
+    console.error("Chart data parsing error:", e);
+  }
+
+  // If no valid data, show friendly fallback
+  const validData = Array.isArray(data) && data.some(v => v > 0);
+  if (!validData) {
+    canvas.style.display = 'none';
+    const container = document.querySelector('.chart-container');
+    const noDataDiv = document.createElement('div');
+    noDataDiv.className =
+      'alert alert-warning mt-3 bg-yellow-500/10 border border-yellow-400/40 text-yellow-300 rounded-lg p-3';
+    noDataDiv.textContent =
+      'No valid spending data to chart. Upload a CSV to see your spending breakdown.';
+    container.appendChild(noDataDiv);
+    return;
+  }
+
+  // Render pie chart
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          data: data,
+          backgroundColor: [
+            '#6366F1', '#EC4899', '#22C55E',
+            '#F59E0B', '#3B82F6', '#8B5CF6'
+          ],
+          borderColor: '#0F172A',
+          borderWidth: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: '#E5E7EB',
+            font: { size: 14 }
+          }
+        },
+        title: {
+          display: true,
+          text: 'Your Spending Overview',
+          color: '#E0E7FF',
+          font: { size: 18 }
+        }
+      }
+    }
+  });
+});
+</script>
+
+{% endblock %}
+

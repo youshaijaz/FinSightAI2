@@ -1,6 +1,7 @@
 from django import forms
 from django.core.validators import MinValueValidator
 from .models import UploadedFile
+from .models import Goal
 
 
 class FileUploadForm(forms.Form):
@@ -14,6 +15,8 @@ class FileUploadForm(forms.ModelForm):
         widgets = {'file': forms.FileInput(attrs={'class': 'form-control'})}
 
 class TaxForm(forms.Form):
+    income = forms.FloatField(label="Annual Income", min_value=0)
+    tax_rate = forms.FloatField(label="Tax Rate (%)", min_value=0, max_value=100)
     STATES = [
         ('CA', 'California'), ('NY', 'New York'), ('TX', 'Texas'), ('FL', 'Florida'), ('WA', 'Washington'),
         ('AL', 'Alabama'), ('AK', 'Alaska'), ('AZ', 'Arizona'), ('AR', 'Arkansas'), ('CO', 'Colorado'),
@@ -46,3 +49,11 @@ class TaxForm(forms.Form):
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 5000 (or 0 for standard)'}),
         help_text='Itemized deductions. Leave 0 to use standard deduction ($15,750 single / $31,500 married).'
     )
+
+class GoalForm(forms.ModelForm):
+    class Meta:
+        model = Goal
+        fields = ['title', 'target_amount', 'deadline']
+        widgets = {
+            'deadline': forms.DateInput(attrs={'type': 'date'}),
+        }

@@ -29,9 +29,7 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = 'django-insecure-6%$n7hb7qdkiuct=u@@ksbv=l!b1a_o3mv7taiwmst49(!ztgo'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -61,7 +59,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -139,3 +137,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']  # Tighten post-hackathon
+
+
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/login/'
