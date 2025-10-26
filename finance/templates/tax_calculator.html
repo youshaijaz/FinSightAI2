@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Tax Calculator - FinSight AI{% endblock %}
+{% block content %}
+<h1 class="mb-4">Tax Calculator</h1>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card p-4 shadow-sm">
+            <h4>Enter Your Info</h4>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary mt-3">Calculate Tax</button>
+            </form>
+        </div>
+    </div>
+    {% if results %}
+    <div class="col-md-6">
+        <div class="card p-4 shadow-sm">
+            <h4>Tax Breakdown</h4>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Gross Income:</strong> ${{ results.gross_income|floatformat:0 }}</li>
+                <li class="list-group-item"><strong>Taxable Income:</strong> ${{ results.taxable_income|floatformat:0 }}</li>
+                <li class="list-group-item"><strong>Federal Tax:</strong> ${{ results.federal_tax|floatformat:0 }}</li>
+                <li class="list-group-item"><strong>State Tax:</strong> ${{ results.state_tax|floatformat:0 }}</li>
+                <li class="list-group-item"><strong>Total Tax:</strong> ${{ results.total_tax|floatformat:0 }} ({{ results.effective_rate }}% effective rate)</li>
+            </ul>
+        </div>
+        <div class="card p-4 shadow-sm mt-3">
+            <h4>AI Tax Advice</h4>
+            <div class="alert alert-info">
+                {{ ai_advice|linebreaks }}
+            </div>
+        </div>
+        {% if charts %}
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <img src="data:image/png;base64,{{ charts.pie }}" class="img-fluid" alt="Tax Pie Chart">
+            </div>
+            <div class="col-md-6">
+                <img src="data:image/png;base64,{{ charts.bar }}" class="img-fluid" alt="Tax Bar Chart">
+            </div>
+        </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

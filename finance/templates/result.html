@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="mb-4">AI Analysis Results</h1>
+<div class="card p-4 shadow-sm">
+    <h4>Financial Summary</h4>
+    <pre class="bg-light p-3 rounded">{{ summary }}</pre>
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-3">Go to Dashboard</a>
+</div>
+{% endblock %}
